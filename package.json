@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "test": "node --import tsx/esm tests/run-tests.js"
+    "test": "tsx tests/run-tests.js"
   },
   "dependencies": {
     "@langchain/core": "0.3.15",

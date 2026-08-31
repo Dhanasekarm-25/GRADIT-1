@@ -111,15 +111,39 @@ export class QueryNormalizer {
     // 5. Normalize repeated whitespace
     text = text.replace(/\s+/g, ' ').trim();
 
+    const STOP_WORDS = new Set([
+      'much',
+      'does',
+      'have',
+      'from',
+      'with',
+      'what',
+      'when',
+      'some',
+      'more',
+      'many',
+      'been',
+      'this',
+      'that',
+      'were',
+      'them',
+      'they',
+      'will',
+      'show',
+      'give',
+      'each',
+      'make',
+    ]);
+
     // 6. Tokenize & Typo Correction
     const tokens = text.split(' ');
     const correctedTokens = tokens.map((token) => {
       if (this.TYPO_DICTIONARY[token]) {
         return this.TYPO_DICTIONARY[token];
       }
-      if (token.length >= 4) {
+      if (!STOP_WORDS.has(token) && token.length >= 5) {
         for (const [typo, target] of Object.entries(this.TYPO_DICTIONARY)) {
-          if (this.levenshteinDistance(token, typo) <= 1) {
+          if (typo.length >= 5 && this.levenshteinDistance(token, typo) <= 1) {
             return target;
           }
         }

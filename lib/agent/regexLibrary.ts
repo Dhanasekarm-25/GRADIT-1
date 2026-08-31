@@ -71,15 +71,39 @@ export class RegexLibrary {
     // 3. Replace separators with space
     text = text.replace(/[-_:\/\\]/g, ' ');
 
+    const STOP_WORDS = new Set([
+      'much',
+      'does',
+      'have',
+      'from',
+      'with',
+      'what',
+      'when',
+      'some',
+      'more',
+      'many',
+      'been',
+      'this',
+      'that',
+      'were',
+      'them',
+      'they',
+      'will',
+      'show',
+      'give',
+      'each',
+      'make',
+    ]);
+
     const tokens = text.split(/\s+/);
     const correctedTokens = tokens.map((token) => {
       const lower = token.toLowerCase();
       if (this.TYPO_DICTIONARY[lower]) {
         return this.TYPO_DICTIONARY[lower];
       }
-      if (lower.length >= 4) {
+      if (!STOP_WORDS.has(lower) && lower.length >= 5) {
         for (const [typo, target] of Object.entries(this.TYPO_DICTIONARY)) {
-          if (this.levenshteinDistance(lower, typo) <= 1) {
+          if (typo.length >= 5 && this.levenshteinDistance(lower, typo) <= 1) {
             return target;
           }
         }
