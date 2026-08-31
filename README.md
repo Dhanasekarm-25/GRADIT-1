@@ -141,9 +141,9 @@ Create a `.env.local` file in the root directory:
 LLM_PROVIDER=ollama
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=llama3.2
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/gradit_db
+DATABASE_URL=postgres://<db_username>:<db_password>@<db_host>:5432/<db_name>
 APP_ENV=development
-JWT_SECRET=super-secret-gradit-test-key
+JWT_SECRET=your-jwt-secret-placeholder
 ```
 
 ### 3. Launch Development Server
