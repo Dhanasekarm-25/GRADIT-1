@@ -323,36 +323,37 @@ export class DatabaseClient {
     }
 
     const supabase = this.getClient();
-    const summaries: StudentAttendanceSummary[] = [];
+    const summaries = await Promise.all(
+      classStudents.map(async (student) => {
+        const { data, error } = await supabase
+          .from('attendance_records')
+          .select('status, attendance_date')
+          .eq('student_id', student.id);
 
-    for (const student of classStudents) {
-      let req = supabase.from('attendance_records').select('status, attendance_date').eq('student_id', student.id);
+        if (error) {
+          throw new Error('Unable to retrieve the requested information from the ERP database.');
+        }
 
-      const { data, error } = await req;
-      if (error) {
-        throw new Error('Unable to retrieve the requested information from the ERP database.');
-      }
+        const records = data || [];
+        const totalClasses = records.length;
+        const attendedClasses = records.filter((r: any) => r.status === 'PRESENT' || r.status === 'OD').length;
+        const percentage = totalClasses > 0 ? Math.round((attendedClasses / totalClasses) * 100) : 0;
+        const dept = student.department_id ? await this.getDepartmentByCodeOrId(student.department_id) : null;
 
-      const records = data || [];
-      const totalClasses = records.length;
-      const attendedClasses = records.filter((r: any) => r.status === 'PRESENT' || r.status === 'OD').length;
-      const percentage = totalClasses > 0 ? Math.round((attendedClasses / totalClasses) * 100) : 0;
-
-      const dept = student.department_id ? await this.getDepartmentByCodeOrId(student.department_id) : null;
-
-      summaries.push({
-        studentId: student.id,
-        studentCode: student.student_code,
-        studentName: student.name,
-        className: cls.code,
-        departmentName: dept?.code || student.department_id || 'N/A',
-        totalClasses,
-        attendedClasses,
-        percentage,
-        semester: params.semester || 'S3',
-        academicYear: params.academicYear || '2025-2026',
-      });
-    }
+        return {
+          studentId: student.id,
+          studentCode: student.student_code,
+          studentName: student.name,
+          className: cls.code,
+          departmentName: dept?.code || student.department_id || 'N/A',
+          totalClasses,
+          attendedClasses,
+          percentage,
+          semester: params.semester || 'S3',
+          academicYear: params.academicYear || '2025-2026',
+        };
+      })
+    );
 
     return { classInfo: cls, summaries };
   }
@@ -369,36 +370,37 @@ export class DatabaseClient {
 
     const deptStudents = await this.findStudents({ departmentId: dept.id });
     const supabase = this.getClient();
-    const summaries: StudentAttendanceSummary[] = [];
+    const summaries = await Promise.all(
+      deptStudents.map(async (student) => {
+        const { data, error } = await supabase
+          .from('attendance_records')
+          .select('status, attendance_date')
+          .eq('student_id', student.id);
 
-    for (const student of deptStudents) {
-      let req = supabase.from('attendance_records').select('status, attendance_date').eq('student_id', student.id);
+        if (error) {
+          throw new Error('Unable to retrieve the requested information from the ERP database.');
+        }
 
-      const { data, error } = await req;
-      if (error) {
-        throw new Error('Unable to retrieve the requested information from the ERP database.');
-      }
+        const records = data || [];
+        const totalClasses = records.length;
+        const attendedClasses = records.filter((r: any) => r.status === 'PRESENT' || r.status === 'OD').length;
+        const percentage = totalClasses > 0 ? Math.round((attendedClasses / totalClasses) * 100) : 0;
+        const cls = student.class_id ? await this.getClassByCodeOrId(student.class_id) : null;
 
-      const records = data || [];
-      const totalClasses = records.length;
-      const attendedClasses = records.filter((r: any) => r.status === 'PRESENT' || r.status === 'OD').length;
-      const percentage = totalClasses > 0 ? Math.round((attendedClasses / totalClasses) * 100) : 0;
-
-      const cls = student.class_id ? await this.getClassByCodeOrId(student.class_id) : null;
-
-      summaries.push({
-        studentId: student.id,
-        studentCode: student.student_code,
-        studentName: student.name,
-        className: cls?.code || student.class_id || 'N/A',
-        departmentName: dept.code,
-        totalClasses,
-        attendedClasses,
-        percentage,
-        semester: params.semester || 'S3',
-        academicYear: params.academicYear || '2025-2026',
-      });
-    }
+        return {
+          studentId: student.id,
+          studentCode: student.student_code,
+          studentName: student.name,
+          className: cls?.code || student.class_id || 'N/A',
+          departmentName: dept.code,
+          totalClasses,
+          attendedClasses,
+          percentage,
+          semester: params.semester || 'S3',
+          academicYear: params.academicYear || '2025-2026',
+        };
+      })
+    );
 
     return { departmentInfo: dept, summaries };
   }
@@ -428,41 +430,44 @@ export class DatabaseClient {
     }
 
     const supabase = this.getClient();
-    const lowAttendanceList: StudentAttendanceSummary[] = [];
+    const fetchedResults = await Promise.all(
+      studentsToFetch.map(async (student) => {
+        const { data, error } = await supabase
+          .from('attendance_records')
+          .select('status, attendance_date')
+          .eq('student_id', student.id);
 
-    for (const student of studentsToFetch) {
-      let req = supabase.from('attendance_records').select('status, attendance_date').eq('student_id', student.id);
+        if (error) {
+          throw new Error('Unable to retrieve the requested information from the ERP database.');
+        }
 
-      const { data, error } = await req;
-      if (error) {
-        throw new Error('Unable to retrieve the requested information from the ERP database.');
-      }
+        const records = data || [];
+        const totalClasses = records.length;
+        const attendedClasses = records.filter((r: any) => r.status === 'PRESENT' || r.status === 'OD').length;
+        const percentage = totalClasses > 0 ? Math.round((attendedClasses / totalClasses) * 100) : 0;
 
-      const records = data || [];
-      const totalClasses = records.length;
-      const attendedClasses = records.filter((r: any) => r.status === 'PRESENT' || r.status === 'OD').length;
-      const percentage = totalClasses > 0 ? Math.round((attendedClasses / totalClasses) * 100) : 0;
+        if (percentage < threshold) {
+          const cls = student.class_id ? await this.getClassByCodeOrId(student.class_id) : null;
+          const dept = student.department_id ? await this.getDepartmentByCodeOrId(student.department_id) : null;
 
-      if (percentage < threshold) {
-        const cls = student.class_id ? await this.getClassByCodeOrId(student.class_id) : null;
-        const dept = student.department_id ? await this.getDepartmentByCodeOrId(student.department_id) : null;
+          return {
+            studentId: student.id,
+            studentCode: student.student_code,
+            studentName: student.name,
+            className: cls?.code || student.class_id || 'N/A',
+            departmentName: dept?.code || student.department_id || 'N/A',
+            totalClasses,
+            attendedClasses,
+            percentage,
+            semester: params.semester || 'S3',
+            academicYear: params.academicYear || '2025-2026',
+          };
+        }
+        return null;
+      })
+    );
 
-        lowAttendanceList.push({
-          studentId: student.id,
-          studentCode: student.student_code,
-          studentName: student.name,
-          className: cls?.code || student.class_id || 'N/A',
-          departmentName: dept?.code || student.department_id || 'N/A',
-          totalClasses,
-          attendedClasses,
-          percentage,
-          semester: params.semester || 'S3',
-          academicYear: params.academicYear || '2025-2026',
-        });
-      }
-    }
-
-    return lowAttendanceList;
+    return fetchedResults.filter((r): r is StudentAttendanceSummary => r !== null);
   }
 
   // Fees Tools
@@ -483,55 +488,55 @@ export class DatabaseClient {
     const supabase = this.getClient();
     const results: { student: Student; summary: StudentFeeSummary }[] = [];
 
-    for (const student of matchedStudents) {
-      let req = supabase.from('fee_payments').select('*').eq('student_id', student.id);
-      if (params.status) req = req.eq('payment_status', params.status);
-      if (params.semester) req = req.ilike('semester', params.semester);
-      if (params.academicYear) req = req.eq('academic_year', params.academicYear);
+    const fetched = await Promise.all(
+      matchedStudents.map(async (student) => {
+        let feeRecords: any[] = [];
+        try {
+          const { data, error } = await supabase.from('fee_payments').select('*').eq('student_id', student.id);
+          if (!error && data) {
+            feeRecords = data.map((d: any) => ({
+              amount: Number(d.amount_due || d.amount || 0),
+              paid_amount: Number(d.amount_paid || 0),
+              status: (d.payment_status === 'OVERDUE' ? 'PENDING' : d.payment_status) as 'PAID' | 'PENDING' | 'PARTIAL',
+              semester: d.semester,
+              academic_year: d.academic_year,
+            }));
+          }
+        } catch {
+          feeRecords = [];
+        }
 
-      const { data, error } = await req;
-      if (error) {
-        throw new Error('Unable to retrieve the requested information from the ERP database.');
-      }
+        const totalAmount = feeRecords.reduce((sum, f) => sum + f.amount, 0);
+        const paidAmount = feeRecords.reduce((sum, f) => sum + f.paid_amount, 0);
+        const pendingAmount = Math.max(0, totalAmount - paidAmount);
 
-      const feeRecords = (data || []).map((d: any) => ({
-        amount: Number(d.amount_due || d.amount || 0),
-        paid_amount: Number(d.amount_paid || 0),
-        status: (d.payment_status === 'OVERDUE' ? 'PENDING' : d.payment_status) as 'PAID' | 'PENDING' | 'PARTIAL',
-        semester: d.semester,
-        academic_year: d.academic_year,
-      }));
+        let feeStatus: 'PAID' | 'PENDING' | 'PARTIAL' = 'PAID';
+        if (pendingAmount > 0 && paidAmount > 0) feeStatus = 'PARTIAL';
+        else if (pendingAmount > 0 && paidAmount === 0) feeStatus = 'PENDING';
 
-      const totalAmount = feeRecords.reduce((sum, f) => sum + f.amount, 0);
-      const paidAmount = feeRecords.reduce((sum, f) => sum + f.paid_amount, 0);
-      const pendingAmount = Math.max(0, totalAmount - paidAmount);
+        const cls = student.class_id ? await this.getClassByCodeOrId(student.class_id) : null;
+        const dept = student.department_id ? await this.getDepartmentByCodeOrId(student.department_id) : null;
 
-      let feeStatus: 'PAID' | 'PENDING' | 'PARTIAL' = 'PAID';
-      if (pendingAmount > 0 && paidAmount > 0) feeStatus = 'PARTIAL';
-      else if (pendingAmount > 0 && paidAmount === 0) feeStatus = 'PENDING';
+        return {
+          student,
+          summary: {
+            studentId: student.id,
+            studentCode: student.student_code,
+            studentName: student.name,
+            className: cls?.code || student.class_id || 'N/A',
+            departmentName: dept?.code || student.department_id || 'N/A',
+            totalAmount,
+            paidAmount,
+            pendingAmount,
+            status: feeStatus,
+            semester: params.semester || 'S3',
+            academicYear: params.academicYear || '2025-2026',
+          },
+        };
+      })
+    );
 
-      const cls = student.class_id ? await this.getClassByCodeOrId(student.class_id) : null;
-      const dept = student.department_id ? await this.getDepartmentByCodeOrId(student.department_id) : null;
-
-      results.push({
-        student,
-        summary: {
-          studentId: student.id,
-          studentCode: student.student_code,
-          studentName: student.name,
-          className: cls?.code || student.class_id || 'N/A',
-          departmentName: dept?.code || student.department_id || 'N/A',
-          totalAmount,
-          paidAmount,
-          pendingAmount,
-          status: feeStatus,
-          semester: params.semester || 'S3',
-          academicYear: params.academicYear || '2025-2026',
-        },
-      });
-    }
-
-    return results;
+    return fetched;
   }
 
   public async getPendingFees(params: {
@@ -555,50 +560,52 @@ export class DatabaseClient {
     const supabase = this.getClient();
     const pendingList: StudentFeeSummary[] = [];
 
-    for (const student of studentsToFetch) {
-      let req = supabase.from('fee_payments').select('*').eq('student_id', student.id);
-      if (params.semester) req = req.ilike('semester', params.semester);
-      if (params.academicYear) req = req.eq('academic_year', params.academicYear);
+    const fetched = await Promise.all(
+      studentsToFetch.map(async (student) => {
+        let feeRecords: any[] = [];
+        try {
+          const { data, error } = await supabase.from('fee_payments').select('*').eq('student_id', student.id);
+          if (!error && data) {
+            feeRecords = data.map((d: any) => ({
+              amount: Number(d.amount_due || d.amount || 0),
+              paid_amount: Number(d.amount_paid || 0),
+              status: (d.payment_status === 'OVERDUE' ? 'PENDING' : d.payment_status) as 'PAID' | 'PENDING' | 'PARTIAL',
+              semester: d.semester,
+              academic_year: d.academic_year,
+            }));
+          }
+        } catch {
+          feeRecords = [];
+        }
 
-      const { data, error } = await req;
-      if (error) {
-        throw new Error('Unable to retrieve the requested information from the ERP database.');
-      }
+        const totalAmount = feeRecords.reduce((sum, f) => sum + f.amount, 0);
+        const paidAmount = feeRecords.reduce((sum, f) => sum + f.paid_amount, 0);
+        const pendingAmount = Math.max(0, totalAmount - paidAmount);
 
-      const feeRecords = (data || []).map((d: any) => ({
-        amount: Number(d.amount_due || d.amount || 0),
-        paid_amount: Number(d.amount_paid || 0),
-        status: (d.payment_status === 'OVERDUE' ? 'PENDING' : d.payment_status) as 'PAID' | 'PENDING' | 'PARTIAL',
-        semester: d.semester,
-        academic_year: d.academic_year,
-      }));
+        if (pendingAmount > 0) {
+          let feeStatus: 'PAID' | 'PENDING' | 'PARTIAL' = paidAmount > 0 ? 'PARTIAL' : 'PENDING';
+          const cls = student.class_id ? await this.getClassByCodeOrId(student.class_id) : null;
+          const dept = student.department_id ? await this.getDepartmentByCodeOrId(student.department_id) : null;
 
-      const totalAmount = feeRecords.reduce((sum, f) => sum + f.amount, 0);
-      const paidAmount = feeRecords.reduce((sum, f) => sum + f.paid_amount, 0);
-      const pendingAmount = Math.max(0, totalAmount - paidAmount);
+          return {
+            studentId: student.id,
+            studentCode: student.student_code,
+            studentName: student.name,
+            className: cls?.code || student.class_id || 'N/A',
+            departmentName: dept?.code || student.department_id || 'N/A',
+            totalAmount,
+            paidAmount,
+            pendingAmount,
+            status: feeStatus,
+            semester: params.semester || 'S3',
+            academicYear: params.academicYear || '2025-2026',
+          };
+        }
+        return null;
+      })
+    );
 
-      if (pendingAmount > 0) {
-        let feeStatus: 'PAID' | 'PENDING' | 'PARTIAL' = paidAmount > 0 ? 'PARTIAL' : 'PENDING';
-        const cls = student.class_id ? await this.getClassByCodeOrId(student.class_id) : null;
-        const dept = student.department_id ? await this.getDepartmentByCodeOrId(student.department_id) : null;
-
-        pendingList.push({
-          studentId: student.id,
-          studentCode: student.student_code,
-          studentName: student.name,
-          className: cls?.code || student.class_id || 'N/A',
-          departmentName: dept?.code || student.department_id || 'N/A',
-          totalAmount,
-          paidAmount,
-          pendingAmount,
-          status: feeStatus,
-          semester: params.semester || 'S3',
-          academicYear: params.academicYear || '2025-2026',
-        });
-      }
-    }
-
-    return pendingList;
+    return (fetched.filter((r) => r !== null) as StudentFeeSummary[]);
   }
 }
 

@@ -461,9 +461,11 @@ async function executeDeterministicQuery(
         classStudents = await dbClient.findStudents({});
       }
 
+      const attResults = await Promise.all(
+        classStudents.map((student) => dbClient.getStudentAttendance({ studentId: student.id }))
+      );
       const summaries: StudentAttendanceSummary[] = [];
-      for (const student of classStudents) {
-        const att = await dbClient.getStudentAttendance({ studentId: student.id });
+      for (const att of attResults) {
         if (att.length > 0) summaries.push(att[0].summary);
       }
 
@@ -535,9 +537,11 @@ async function executeDeterministicQuery(
         classStudents = await dbClient.findStudents({});
       }
 
+      const feeResults = await Promise.all(
+        classStudents.map((student) => dbClient.getStudentFees({ studentId: student.id }))
+      );
       const summaries: StudentFeeSummary[] = [];
-      for (const student of classStudents) {
-        const fees = await dbClient.getStudentFees({ studentId: student.id });
+      for (const fees of feeResults) {
         if (fees.length > 0) summaries.push(fees[0].summary);
       }
 
