@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    serverComponentsExternalPackages: ['pdfkit', 'exceljs', 'docx', 'pg']
+    serverComponentsExternalPackages: ['pdfkit', 'exceljs', 'docx']
   }
 };
 

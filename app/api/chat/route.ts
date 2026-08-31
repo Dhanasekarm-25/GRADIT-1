@@ -5,7 +5,7 @@ import { SecurityContext } from '@/lib/tools/rbac';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { message, role = 'FACULTY', userId = 'usr-1', lastReportData } = body;
+    const { message, role = 'FACULTY', userId = 'usr-1', lastReportData, pendingQuery } = body;
 
     if (!message || typeof message !== 'string') {
       return NextResponse.json({ error: 'Message text is required.' }, { status: 400 });
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
       role: role.toUpperCase(),
     };
 
-    const agentResult = await runAgentWorkflow(message, securityContext, lastReportData);
+    const agentResult = await runAgentWorkflow(message, securityContext, lastReportData, pendingQuery);
 
     return NextResponse.json(agentResult);
   } catch (err: any) {

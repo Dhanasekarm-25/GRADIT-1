@@ -25,8 +25,18 @@ export interface Student {
   id: string;
   student_code: string;
   name: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone?: string;
+  date_of_birth?: string;
   department_id: string;
   class_id: string;
+  year?: number;
+  semester?: string;
+  section?: string;
+  admission_year?: number;
+  status?: string;
 }
 
 export interface AttendanceRecord {
@@ -34,7 +44,7 @@ export interface AttendanceRecord {
   student_id: string;
   class_id: string;
   date: string;
-  status: 'PRESENT' | 'ABSENT' | 'LATE';
+  status: 'PRESENT' | 'ABSENT' | 'LATE' | 'OD' | 'LEAVE';
   semester: string;
   academic_year: string;
 }

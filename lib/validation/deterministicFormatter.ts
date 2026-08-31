@@ -1,5 +1,21 @@
 import { ReportData } from '../reports/types';
 
+export interface PendingQuery {
+  intent:
+    | 'ATTENDANCE'
+    | 'FEES'
+    | 'STUDENT_DETAILS'
+    | 'LOW_ATTENDANCE'
+    | 'DEPARTMENT_STUDENTS'
+    | 'CLASS_ATTENDANCE'
+    | 'REPORT';
+  originalMessage: string;
+  entity: string;
+  candidates: { id: string; code: string; name: string; class: string; dept: string }[];
+  selectedStudentCode?: string;
+  reportFormat?: 'pdf' | 'xlsx' | 'docx';
+}
+
 export interface DeterministicResponse {
   type: 'TEXT' | 'CLARIFICATION' | 'REPORT_READY' | 'ERROR';
   content: string;
@@ -9,6 +25,7 @@ export interface DeterministicResponse {
   };
   matches?: { id: string; code: string; name: string; class: string; dept: string }[];
   reportMetadata?: ReportData;
+  pendingQuery?: PendingQuery;
 }
 
 export class DeterministicFormatter {

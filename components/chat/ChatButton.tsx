@@ -17,17 +17,17 @@ export const ChatButton: React.FC<ChatButtonProps> = ({ isOpen, onClick }) => {
         right: '24px',
         bottom: '24px',
         zIndex: 9999,
-        width: '60px',
-        height: '60px',
+        width: '56px',
+        height: '56px',
       }}
-      className="rounded-full bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-600 text-white shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200 border-2 border-indigo-400/30 group"
+      className="rounded-full bg-gradient-to-tr from-purple-600 via-indigo-600 to-purple-500 text-white shadow-lg shadow-purple-500/25 flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200 border border-purple-300/30 group"
       aria-label="Toggle GRADit! ERP AI Chatbot"
     >
       <div className="relative flex items-center justify-center">
-        <MessageSquare className="w-7 h-7 group-hover:rotate-12 transition-transform duration-300" />
-        <span className="absolute -top-1 -right-1 flex h-3 w-3">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-300 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-400"></span>
+        <MessageSquare className="w-6 h-6 group-hover:scale-110 transition-transform duration-200 text-white" />
+        <span className="absolute -top-1.5 -right-1.5 flex h-3 w-3">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border-2 border-white"></span>
         </span>
       </div>
     </button>

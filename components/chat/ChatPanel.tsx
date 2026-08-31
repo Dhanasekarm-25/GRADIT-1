@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Send, Bot, Loader2, Sparkles } from 'lucide-react';
+import { X, Send, Bot, Loader2, Maximize2, Minimize2, Minus } from 'lucide-react';
 import { RoleSelector } from './RoleSelector';
 import { MessageItem, ChatMessage } from './MessageItem';
 import { UserRole } from '@/lib/db/types';
 import { ReportData } from '@/lib/reports/pdf';
+import { PendingQuery } from '@/lib/validation/deterministicFormatter';
 
 interface ChatPanelProps {
   isOpen: boolean;
@@ -24,6 +25,8 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ isOpen, onClose }) => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [lastReportData, setLastReportData] = useState<ReportData | undefined>(undefined);
+  const [pendingQuery, setPendingQuery] = useState<PendingQuery | undefined>(undefined);
+  const [isMaximized, setIsMaximized] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -56,6 +59,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ isOpen, onClose }) => {
           role,
           userId: 'usr-1',
           lastReportData,
+          pendingQuery,
         }),
       });
 
@@ -71,9 +75,16 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ isOpen, onClose }) => {
             isError: true,
           },
         ]);
+        setPendingQuery(undefined);
       } else {
         if (data.reportMetadata) {
           setLastReportData(data.reportMetadata);
+        }
+
+        if (data.pendingQuery) {
+          setPendingQuery(data.pendingQuery);
+        } else {
+          setPendingQuery(undefined);
         }
 
         setMessages((prev) => [
@@ -98,6 +109,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ isOpen, onClose }) => {
           isError: true,
         },
       ]);
+      setPendingQuery(undefined);
     } finally {
       setIsLoading(false);
     }
@@ -163,29 +175,54 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className="fixed bottom-[90px] right-[24px] w-[390px] h-[600px] bg-slate-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700/80 flex flex-col overflow-hidden z-[9999] transition-all duration-300 animate-in fade-in slide-in-from-bottom-5"
+      className={`fixed transition-all duration-300 z-[9999] bg-white rounded-[24px] shadow-2xl border border-[#E2E8F0] flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 ${
+        isMaximized
+          ? 'bottom-6 right-6 w-[calc(100vw-48px)] max-w-5xl h-[calc(100vh-48px)] max-h-[880px]'
+          : 'bottom-[90px] right-[24px] w-[400px] h-[640px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-100px)]'
+      }`}
     >
       {/* Header */}
-      <div className="bg-slate-950 p-3.5 border-b border-slate-800 flex flex-col gap-2.5">
+      <div className="bg-white p-4 border-b border-[#F1F5F9] flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center shadow-inner">
-              <Bot className="w-5 h-5 text-white" />
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-[#F5F3FF] border border-[#DDD6FE] text-[#7C3AED] flex items-center justify-center shadow-2xs">
+              <Bot className="w-5 h-5 text-[#7C3AED]" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white tracking-wide">GRADit! AI Assistant</h3>
-              <div className="flex items-center gap-1.5">
+              <h3 className="text-sm font-extrabold text-[#1E293B] tracking-tight">GRADit! AI Assistant</h3>
+              <p className="text-[11px] text-[#64748B] font-medium leading-none mt-0.5">AI-powered ERP Assistant</p>
+              <div className="flex items-center gap-1.5 mt-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[11px] text-slate-400 font-medium">ERP Connected</span>
+                <span className="text-[10px] text-[#64748B] font-semibold">Online</span>
               </div>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg text-[#94A3B8] hover:text-[#7C3AED] hover:bg-[#F5F3FF] transition-all cursor-pointer"
+              title="Minimize chat"
+              aria-label="Minimize"
+            >
+              <Minus className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setIsMaximized((prev) => !prev)}
+              className="p-1.5 rounded-lg text-[#94A3B8] hover:text-[#7C3AED] hover:bg-[#F5F3FF] transition-all cursor-pointer"
+              title={isMaximized ? 'Restore size' : 'Maximize window'}
+              aria-label={isMaximized ? 'Restore' : 'Maximize'}
+            >
+              {isMaximized ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            </button>
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg text-[#94A3B8] hover:text-[#EF4444] hover:bg-[#FEF2F2] transition-all cursor-pointer"
+              title="Close chat"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Role Selector */}
@@ -193,7 +230,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ isOpen, onClose }) => {
       </div>
 
       {/* Messages Feed */}
-      <div className="flex-1 p-4 overflow-y-auto chat-scroll bg-slate-900/50">
+      <div className="flex-1 p-4 overflow-y-auto chat-scroll bg-[#F8FAFC]/50">
         {messages.map((msg) => (
           <MessageItem
             key={msg.id}
@@ -204,38 +241,40 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ isOpen, onClose }) => {
         ))}
 
         {isLoading && (
-          <div className="flex items-center gap-2 p-3 text-xs text-indigo-400 bg-indigo-950/40 border border-indigo-800/40 rounded-xl mb-4 animate-pulse">
-            <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
-            <span>Assistant is checking ERP data...</span>
+          <div className="flex items-center gap-2 p-3 text-xs text-[#7C3AED] bg-[#F5F3FF] border border-[#DDD6FE] rounded-2xl mb-4 animate-pulse">
+            <Loader2 className="w-4 h-4 animate-spin text-[#7C3AED]" />
+            <span className="font-semibold">Assistant is checking ERP data...</span>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Quick Prompts */}
-      <div className="px-3 py-2 bg-slate-950/70 border-t border-slate-800/60 flex items-center gap-1.5 overflow-x-auto text-xs no-scrollbar">
-        <button
-          onClick={() => handleSendMessage('Show attendance of 23CS101')}
-          className="px-2.5 py-1 bg-slate-800 hover:bg-indigo-900/60 text-slate-300 hover:text-indigo-200 border border-slate-700 rounded-lg whitespace-nowrap transition-all"
-        >
-          [ Attendance 23CS101 ]
-        </button>
-        <button
-          onClick={() => handleSendMessage('Which CSE students are below 75%')}
-          className="px-2.5 py-1 bg-slate-800 hover:bg-indigo-900/60 text-slate-300 hover:text-indigo-200 border border-slate-700 rounded-lg whitespace-nowrap transition-all"
-        >
-          [ Low Attendance ]
-        </button>
-        <button
-          onClick={() => handleSendMessage('Who has pending fees?')}
-          className="px-2.5 py-1 bg-slate-800 hover:bg-indigo-900/60 text-slate-300 hover:text-indigo-200 border border-slate-700 rounded-lg whitespace-nowrap transition-all"
-        >
-          [ Pending Fees ]
-        </button>
-      </div>
+      {/* Quick Prompts (shown on start) */}
+      {messages.length <= 1 && (
+        <div className="px-3.5 py-2 bg-white/90 backdrop-blur-xs border-t border-[#F1F5F9] flex items-center gap-2 overflow-x-auto text-xs no-scrollbar">
+          <button
+            onClick={() => handleSendMessage('Show attendance of 23CS101')}
+            className="px-3.5 py-1.5 bg-white hover:bg-[#F5F3FF] text-[#7C3AED] hover:text-[#6D28D9] border border-[#DDD6FE] hover:border-[#C4B5FD] rounded-full whitespace-nowrap transition-all font-semibold shadow-2xs cursor-pointer"
+          >
+            Attendance 23CS101
+          </button>
+          <button
+            onClick={() => handleSendMessage('Which CSE students are below 75%')}
+            className="px-3.5 py-1.5 bg-white hover:bg-[#F5F3FF] text-[#7C3AED] hover:text-[#6D28D9] border border-[#DDD6FE] hover:border-[#C4B5FD] rounded-full whitespace-nowrap transition-all font-semibold shadow-2xs cursor-pointer"
+          >
+            Low Attendance
+          </button>
+          <button
+            onClick={() => handleSendMessage('Who has pending fees?')}
+            className="px-3.5 py-1.5 bg-white hover:bg-[#F5F3FF] text-[#7C3AED] hover:text-[#6D28D9] border border-[#DDD6FE] hover:border-[#C4B5FD] rounded-full whitespace-nowrap transition-all font-semibold shadow-2xs cursor-pointer"
+          >
+            Pending Fees
+          </button>
+        </div>
+      )}
 
       {/* Input Footer */}
-      <div className="p-3 bg-slate-950 border-t border-slate-800">
+      <div className="p-3.5 bg-white border-t border-[#F1F5F9]">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -247,13 +286,14 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ isOpen, onClose }) => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask attendance, fees, student search..."
-            className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-all"
+            placeholder="Ask about attendance, fees, students..."
+            className="flex-1 bg-[#F8FAFC] border border-[#E2E8F0] focus:border-[#7C3AED] focus:bg-white rounded-full px-4 py-2.5 text-xs text-[#1E293B] placeholder-[#94A3B8] focus:outline-none transition-all shadow-2xs"
           />
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="p-2.5 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-md"
+            className="w-9 h-9 rounded-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm shadow-purple-500/25 shrink-0 cursor-pointer"
+            aria-label="Send query"
           >
             <Send className="w-4 h-4" />
           </button>
