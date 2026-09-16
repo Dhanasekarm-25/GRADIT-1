@@ -175,32 +175,32 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ isOpen, onClose }) => {
 
   return (
     <div
-      className={`fixed transition-all duration-300 z-[9999] bg-white rounded-[24px] shadow-2xl border border-[#E2E8F0] flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 ${
+      className={`fixed transition-all duration-300 z-[9999] bg-white flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 ${
         isMaximized
-          ? 'bottom-6 right-6 w-[calc(100vw-48px)] max-w-5xl h-[calc(100vh-48px)] max-h-[880px]'
-          : 'bottom-[90px] right-[24px] w-[400px] h-[640px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-100px)]'
+          ? 'inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[calc(100vw-48px)] sm:max-w-5xl sm:h-[calc(100vh-48px)] sm:max-h-[880px] rounded-none sm:rounded-[24px] sm:shadow-2xl sm:border sm:border-[#E2E8F0]'
+          : 'inset-0 sm:inset-auto sm:bottom-[90px] sm:right-[24px] w-full sm:w-[420px] h-full sm:h-[640px] sm:max-w-[calc(100vw-32px)] sm:max-h-[calc(100vh-120px)] rounded-none sm:rounded-[24px] sm:shadow-2xl sm:border sm:border-[#E2E8F0]'
       }`}
     >
       {/* Header */}
-      <div className="bg-white p-4 border-b border-[#F1F5F9] flex flex-col gap-3">
+      <div className="bg-white px-3.5 sm:px-4 py-3 sm:py-4 border-b border-[#F1F5F9] flex flex-col gap-2.5 sm:gap-3 shrink-0 pt-[max(env(safe-area-inset-top),12px)] sm:pt-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#F5F3FF] border border-[#DDD6FE] text-[#7C3AED] flex items-center justify-center shadow-2xs">
-              <Bot className="w-5 h-5 text-[#7C3AED]" />
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#F5F3FF] border border-[#DDD6FE] text-[#7C3AED] flex items-center justify-center shadow-2xs shrink-0">
+              <Bot className="w-4 h-4 sm:w-5 sm:h-5 text-[#7C3AED]" />
             </div>
             <div>
-              <h3 className="text-sm font-extrabold text-[#1E293B] tracking-tight">GRADit! AI Assistant</h3>
-              <p className="text-[11px] text-[#64748B] font-medium leading-none mt-0.5">AI-powered ERP Assistant</p>
+              <h3 className="text-xs sm:text-sm font-extrabold text-[#1E293B] tracking-tight">GRADit! AI Assistant</h3>
+              <p className="text-[10px] sm:text-[11px] text-[#64748B] font-medium leading-none mt-0.5">AI-powered ERP Assistant</p>
               <div className="flex items-center gap-1.5 mt-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[10px] text-[#64748B] font-semibold">Online</span>
+                <span className="text-[9px] sm:text-[10px] text-[#64748B] font-semibold">Online</span>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5 sm:gap-1">
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-[#94A3B8] hover:text-[#7C3AED] hover:bg-[#F5F3FF] transition-all cursor-pointer"
+              className="hidden sm:flex p-1.5 rounded-lg text-[#94A3B8] hover:text-[#7C3AED] hover:bg-[#F5F3FF] transition-all cursor-pointer"
               title="Minimize chat"
               aria-label="Minimize"
             >
@@ -208,7 +208,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ isOpen, onClose }) => {
             </button>
             <button
               onClick={() => setIsMaximized((prev) => !prev)}
-              className="p-1.5 rounded-lg text-[#94A3B8] hover:text-[#7C3AED] hover:bg-[#F5F3FF] transition-all cursor-pointer"
+              className="hidden sm:flex p-1.5 rounded-lg text-[#94A3B8] hover:text-[#7C3AED] hover:bg-[#F5F3FF] transition-all cursor-pointer"
               title={isMaximized ? 'Restore size' : 'Maximize window'}
               aria-label={isMaximized ? 'Restore' : 'Maximize'}
             >
@@ -220,7 +220,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ isOpen, onClose }) => {
               title="Close chat"
               aria-label="Close"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5 sm:w-4 sm:h-4" />
             </button>
           </div>
         </div>
@@ -230,7 +230,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ isOpen, onClose }) => {
       </div>
 
       {/* Messages Feed */}
-      <div className="flex-1 p-4 overflow-y-auto chat-scroll bg-[#F8FAFC]/50">
+      <div className="flex-1 p-3 sm:p-4 overflow-y-auto chat-scroll bg-[#F8FAFC]/50">
         {messages.map((msg) => (
           <MessageItem
             key={msg.id}
@@ -251,22 +251,22 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ isOpen, onClose }) => {
 
       {/* Quick Prompts (shown on start) */}
       {messages.length <= 1 && (
-        <div className="px-3.5 py-2 bg-white/90 backdrop-blur-xs border-t border-[#F1F5F9] flex items-center gap-2 overflow-x-auto text-xs no-scrollbar">
+        <div className="px-3 sm:px-3.5 py-2 bg-white/90 backdrop-blur-xs border-t border-[#F1F5F9] flex items-center gap-2 overflow-x-auto text-xs no-scrollbar shrink-0">
           <button
             onClick={() => handleSendMessage('Show attendance of 23CS101')}
-            className="px-3.5 py-1.5 bg-white hover:bg-[#F5F3FF] text-[#7C3AED] hover:text-[#6D28D9] border border-[#DDD6FE] hover:border-[#C4B5FD] rounded-full whitespace-nowrap transition-all font-semibold shadow-2xs cursor-pointer"
+            className="px-3 py-1.5 bg-white hover:bg-[#F5F3FF] text-[#7C3AED] hover:text-[#6D28D9] border border-[#DDD6FE] hover:border-[#C4B5FD] rounded-full whitespace-nowrap transition-all font-semibold shadow-2xs cursor-pointer text-[11px] sm:text-xs"
           >
             Attendance 23CS101
           </button>
           <button
             onClick={() => handleSendMessage('Which CSE students are below 75%')}
-            className="px-3.5 py-1.5 bg-white hover:bg-[#F5F3FF] text-[#7C3AED] hover:text-[#6D28D9] border border-[#DDD6FE] hover:border-[#C4B5FD] rounded-full whitespace-nowrap transition-all font-semibold shadow-2xs cursor-pointer"
+            className="px-3 py-1.5 bg-white hover:bg-[#F5F3FF] text-[#7C3AED] hover:text-[#6D28D9] border border-[#DDD6FE] hover:border-[#C4B5FD] rounded-full whitespace-nowrap transition-all font-semibold shadow-2xs cursor-pointer text-[11px] sm:text-xs"
           >
             Low Attendance
           </button>
           <button
             onClick={() => handleSendMessage('Who has pending fees?')}
-            className="px-3.5 py-1.5 bg-white hover:bg-[#F5F3FF] text-[#7C3AED] hover:text-[#6D28D9] border border-[#DDD6FE] hover:border-[#C4B5FD] rounded-full whitespace-nowrap transition-all font-semibold shadow-2xs cursor-pointer"
+            className="px-3 py-1.5 bg-white hover:bg-[#F5F3FF] text-[#7C3AED] hover:text-[#6D28D9] border border-[#DDD6FE] hover:border-[#C4B5FD] rounded-full whitespace-nowrap transition-all font-semibold shadow-2xs cursor-pointer text-[11px] sm:text-xs"
           >
             Pending Fees
           </button>
@@ -274,7 +274,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ isOpen, onClose }) => {
       )}
 
       {/* Input Footer */}
-      <div className="p-3.5 bg-white border-t border-[#F1F5F9]">
+      <div className="p-3 sm:p-3.5 bg-white border-t border-[#F1F5F9] shrink-0 pb-[max(env(safe-area-inset-bottom),12px)] sm:pb-3.5">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -292,7 +292,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ isOpen, onClose }) => {
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="w-9 h-9 rounded-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm shadow-purple-500/25 shrink-0 cursor-pointer"
+            className="w-10 h-10 sm:w-9 sm:h-9 rounded-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm shadow-purple-500/25 shrink-0 cursor-pointer"
             aria-label="Send query"
           >
             <Send className="w-4 h-4" />
