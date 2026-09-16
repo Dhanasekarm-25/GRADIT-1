@@ -113,3 +113,34 @@ export async function getLowAttendanceStudentsTool(
     data: lowList,
   };
 }
+
+export const GetPerfectAttendanceSchema = z.object({
+  departmentIdentifier: z.string().optional(),
+  classIdentifier: z.string().optional(),
+  threshold: z.number().optional(),
+  semester: z.string().optional(),
+  academicYear: z.string().optional(),
+});
+
+export async function getPerfectAttendanceStudentsTool(
+  input: z.infer<typeof GetPerfectAttendanceSchema>,
+  context: SecurityContext
+): Promise<AttendanceToolResult> {
+  authorizeToolExecution(context, 'READ_ATTENDANCE');
+  const validated = GetPerfectAttendanceSchema.parse(input);
+
+  const perfectList = await dbClient.getPerfectAttendanceStudents(validated);
+
+  let title = 'Students with 100% Attendance';
+  if (validated.departmentIdentifier) {
+    title = `Students with 100% Attendance in ${validated.departmentIdentifier.toUpperCase()}`;
+  } else if (validated.classIdentifier) {
+    title = `Students with 100% Attendance in ${validated.classIdentifier.toUpperCase()}`;
+  }
+
+  return {
+    type: 'LIST',
+    title,
+    data: perfectList,
+  };
+}

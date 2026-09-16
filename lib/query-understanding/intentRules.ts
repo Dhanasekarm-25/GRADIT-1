@@ -39,6 +39,34 @@ export const INTENT_RULES: IntentRule[] = [
     ],
   },
   {
+    intent: 'PERFECT_ATTENDANCE',
+    regexes: [
+      /\b100%?\s*(?:overall\s+)?attendance\s*(?:list|students?|records?)?\b/i,
+      /\b(?:overall\s+)?100%?\s+attendance\b/i,
+      /\b100\s+percent\s+attendance\s*(?:list|students?|records?)?\b/i,
+      /\bwho\s+has\s+100%?\s+attendance\b/i,
+      /\bstudents\s+with\s+100%?\s+attendance\b/i,
+      /\bstudents\s+having\s+100%?\s+attendance\b/i,
+      /\bfull\s+attendance\s*(?:list|students?)?\b/i,
+      /\bperfect\s+attendance\s*(?:list|students?)?\b/i,
+      /\battendance\s+100%?\b/i,
+    ],
+  },
+  {
+    intent: 'PAID_FEES',
+    regexes: [
+      /\b(?:overall\s+)?fee(?:s)?\s+paid\s*(?:list|students?|records?)?\b/i,
+      /\bpaid\s+fee(?:s)?\s*(?:list|students?|records?)?\b/i,
+      /\bwho\s+(?:has\s+)?paid\s+(?:all\s+)?fee(?:s)?\b/i,
+      /\bwho\s+(?:all\s+)?paid\s+fee(?:s)?\b/i,
+      /\bfully\s+paid\s*(?:fees?|students?|list)?\b/i,
+      /\bshow\s+(?:all\s+)?paid\s+fees?\b/i,
+      /\b(?:paid|cleared)\s+fees?\s+list\b/i,
+      /\bfee\s+clearance\s+list\b/i,
+      /\bstudents\s+who\s+paid\s+fees?\b/i,
+    ],
+  },
+  {
     intent: 'PENDING_FEES',
     regexes: [
       /\b(?:pending|unpaid|due|dues|outstanding|balance)\s*(?:fees?|payment|dues?)?\b/i,

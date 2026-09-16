@@ -8,8 +8,9 @@ import {
   getClassAttendanceTool,
   getDepartmentAttendanceTool,
   getLowAttendanceStudentsTool,
+  getPerfectAttendanceStudentsTool,
 } from '../tools/attendance';
-import { getStudentFeesTool, getPendingFeesTool } from '../tools/fees';
+import { getStudentFeesTool, getPendingFeesTool, getPaidFeesTool } from '../tools/fees';
 import { findStudentTool, getStudentsByClassTool, resolveStudentEntity } from '../tools/students';
 import { dbClient } from '../db/client';
 import { Student, StudentFeeSummary, StudentAttendanceSummary } from '../db/types';
@@ -491,6 +492,17 @@ async function executeDeterministicQuery(
       return { type: 'TEXT', content: 'Unable to retrieve low attendance list.' };
     }
 
+    case 'PERFECT_ATTENDANCE': {
+      const result = await getPerfectAttendanceStudentsTool(
+        { threshold: 100, departmentIdentifier: department, classIdentifier: classId },
+        securityContext
+      );
+      if (result.type === 'LIST') {
+        return DeterministicFormatter.formatAttendanceList(result.title, result.data, securityContext.role);
+      }
+      return { type: 'TEXT', content: 'Unable to retrieve 100% attendance list.' };
+    }
+
     case 'FEES_STUDENT': {
       const targetQuery = studentId || studentName;
       if (!targetQuery) {
@@ -609,6 +621,17 @@ async function executeDeterministicQuery(
         return DeterministicFormatter.formatFeeList(result.title, result.data, securityContext.role);
       }
       return { type: 'TEXT', content: 'Unable to retrieve pending fee list.' };
+    }
+
+    case 'PAID_FEES': {
+      const result = await getPaidFeesTool(
+        { departmentIdentifier: department, classIdentifier: classId },
+        securityContext
+      );
+      if (result.type === 'LIST') {
+        return DeterministicFormatter.formatFeeList(result.title, result.data, securityContext.role);
+      }
+      return { type: 'TEXT', content: 'Unable to retrieve paid fee list.' };
     }
 
     case 'STUDENTS_LIST': {

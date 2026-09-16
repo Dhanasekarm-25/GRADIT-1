@@ -259,10 +259,22 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ isOpen, onClose }) => {
             Attendance 23CS101
           </button>
           <button
+            onClick={() => handleSendMessage('100% attendance list')}
+            className="px-3 py-1.5 bg-white hover:bg-[#F5F3FF] text-[#7C3AED] hover:text-[#6D28D9] border border-[#DDD6FE] hover:border-[#C4B5FD] rounded-full whitespace-nowrap transition-all font-semibold shadow-2xs cursor-pointer text-[11px] sm:text-xs"
+          >
+            100% Attendance
+          </button>
+          <button
             onClick={() => handleSendMessage('Which CSE students are below 75%')}
             className="px-3 py-1.5 bg-white hover:bg-[#F5F3FF] text-[#7C3AED] hover:text-[#6D28D9] border border-[#DDD6FE] hover:border-[#C4B5FD] rounded-full whitespace-nowrap transition-all font-semibold shadow-2xs cursor-pointer text-[11px] sm:text-xs"
           >
             Low Attendance
+          </button>
+          <button
+            onClick={() => handleSendMessage('overall fee paid list')}
+            className="px-3 py-1.5 bg-white hover:bg-[#F5F3FF] text-[#7C3AED] hover:text-[#6D28D9] border border-[#DDD6FE] hover:border-[#C4B5FD] rounded-full whitespace-nowrap transition-all font-semibold shadow-2xs cursor-pointer text-[11px] sm:text-xs"
+          >
+            Fee Paid List
           </button>
           <button
             onClick={() => handleSendMessage('Who has pending fees?')}

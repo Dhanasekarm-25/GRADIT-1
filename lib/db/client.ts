@@ -440,6 +440,67 @@ export class DatabaseClient {
     return fetchedResults.filter((r): r is StudentAttendanceSummary => r !== null);
   }
 
+  public async getPerfectAttendanceStudents(params: {
+    departmentIdentifier?: string;
+    classIdentifier?: string;
+    threshold?: number;
+    semester?: string;
+    academicYear?: string;
+  }): Promise<StudentAttendanceSummary[]> {
+    const threshold = params.threshold ?? 100;
+    let studentsToFetch: Student[] = [];
+
+    if (params.classIdentifier) {
+      const cls = await this.getClassByCodeOrId(params.classIdentifier);
+      if (cls) {
+        studentsToFetch = await this.findStudents({ classId: cls.id });
+        if (studentsToFetch.length === 0 && cls.department_id) {
+          studentsToFetch = await this.findStudents({ departmentId: cls.department_id });
+        }
+      }
+    } else if (params.departmentIdentifier) {
+      const dept = await this.getDepartmentByCodeOrId(params.departmentIdentifier);
+      if (dept) {
+        studentsToFetch = await this.findStudents({ departmentId: dept.id });
+        if (studentsToFetch.length === 0 && dept.code === 'CSE') {
+          studentsToFetch = await this.findStudents({ departmentId: 'dept-cs' });
+        }
+      }
+    } else {
+      studentsToFetch = await this.findStudents({});
+    }
+
+    const fetchedResults = await Promise.all(
+      studentsToFetch.map(async (student) => {
+        const records = localDatabase.attendance.filter((a) => a.student_id === student.id);
+        const totalClasses = records.length;
+        const attendedClasses = records.filter((r) => r.status === 'PRESENT' || r.status === 'OD').length;
+        const percentage = totalClasses > 0 ? Math.round((attendedClasses / totalClasses) * 100) : 0;
+
+        if (percentage >= threshold && totalClasses > 0) {
+          const cls = student.class_id ? await this.getClassByCodeOrId(student.class_id) : null;
+          const dept = student.department_id ? await this.getDepartmentByCodeOrId(student.department_id) : null;
+
+          return {
+            studentId: student.id,
+            studentCode: student.student_code,
+            studentName: student.name,
+            className: cls?.code || student.class_id || 'N/A',
+            departmentName: dept?.code || student.department_id || 'N/A',
+            totalClasses,
+            attendedClasses,
+            percentage,
+            semester: params.semester || student.semester || 'S3',
+            academicYear: params.academicYear || '2025-2026',
+          };
+        }
+        return null;
+      })
+    );
+
+    return fetchedResults.filter((r): r is StudentAttendanceSummary => r !== null);
+  }
+
   // Fees Tools
   public async getStudentFees(params: {
     studentId?: string;
@@ -545,6 +606,67 @@ export class DatabaseClient {
             paidAmount,
             pendingAmount,
             status: feeStatus,
+            semester: params.semester || student.semester || 'S3',
+            academicYear: params.academicYear || '2025-2026',
+          };
+        }
+        return null;
+      })
+    );
+
+    return fetched.filter((r): r is StudentFeeSummary => r !== null);
+  }
+
+  public async getPaidFees(params: {
+    departmentIdentifier?: string;
+    classIdentifier?: string;
+    semester?: string;
+    academicYear?: string;
+  }): Promise<StudentFeeSummary[]> {
+    let studentsToFetch: Student[] = [];
+
+    if (params.classIdentifier) {
+      const cls = await this.getClassByCodeOrId(params.classIdentifier);
+      if (cls) {
+        studentsToFetch = await this.findStudents({ classId: cls.id });
+        if (studentsToFetch.length === 0 && cls.department_id) {
+          studentsToFetch = await this.findStudents({ departmentId: cls.department_id });
+        }
+      }
+    } else if (params.departmentIdentifier) {
+      const dept = await this.getDepartmentByCodeOrId(params.departmentIdentifier);
+      if (dept) {
+        studentsToFetch = await this.findStudents({ departmentId: dept.id });
+        if (studentsToFetch.length === 0 && dept.code === 'CSE') {
+          studentsToFetch = await this.findStudents({ departmentId: 'dept-cs' });
+        }
+      }
+    } else {
+      studentsToFetch = await this.findStudents({});
+    }
+
+    const fetched = await Promise.all(
+      studentsToFetch.map(async (student): Promise<StudentFeeSummary | null> => {
+        const feeRecords = localDatabase.fees.filter((f) => f.student_id === student.id);
+
+        const totalAmount = feeRecords.reduce((sum, f) => sum + f.amount_due, 0);
+        const paidAmount = feeRecords.reduce((sum, f) => sum + f.amount_paid, 0);
+        const pendingAmount = Math.max(0, totalAmount - paidAmount);
+
+        if (pendingAmount === 0 && totalAmount > 0) {
+          const cls = student.class_id ? await this.getClassByCodeOrId(student.class_id) : null;
+          const dept = student.department_id ? await this.getDepartmentByCodeOrId(student.department_id) : null;
+
+          return {
+            studentId: student.id,
+            studentCode: student.student_code,
+            studentName: student.name,
+            className: cls?.code || student.class_id || 'N/A',
+            departmentName: dept?.code || student.department_id || 'N/A',
+            totalAmount,
+            paidAmount,
+            pendingAmount: 0,
+            status: 'PAID',
             semester: params.semester || student.semester || 'S3',
             academicYear: params.academicYear || '2025-2026',
           };

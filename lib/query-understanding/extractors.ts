@@ -168,6 +168,12 @@ export class EntityExtractor {
     'average',
     'percentage',
     'percent',
+    '100',
+    '100%',
+    'full',
+    'perfect',
+    'cleared',
+    'clearance',
     'below',
     'above',
     'under',
@@ -404,9 +410,9 @@ export class EntityExtractor {
     // 10. Student Candidate Name (Fallback when not a student ID)
     const candidateName = this.extractStudentNameCandidate(text);
     const isAggregateQuery =
-      /\b(?:who\s+has\s+pending|overall\s+absentees?|who\s+is\s+absent|students\s+below|defaulters?)\b/i.test(text) ||
-      (!candidateName && /\b(?:pending\s+fees?|unpaid\s+fees?|absentees?)\b/i.test(text)) ||
-      ((entities.department || entities.classId) && /\b(?:attendance|fees?|students?|absentees?|below|above)\b/i.test(text) && !/\b(?:of|for)\s+[a-z]+/i.test(text.replace(REGEX_PATTERNS.DEPARTMENT, '').replace(REGEX_PATTERNS.CLASS_ID, '')));
+      /\b(?:who\s+has\s+pending|overall\s+absentees?|who\s+is\s+absent|students\s+below|defaulters?|fee(?:s)?\s+paid\s*(?:list|students?)?|paid\s+fee(?:s)?|100%?\s+attendance|perfect\s+attendance|full\s+attendance)\b/i.test(text) ||
+      (!candidateName && /\b(?:pending\s+fees?|unpaid\s+fees?|absentees?|paid\s+fees?|fee\s+paid)\b/i.test(text)) ||
+      ((entities.department || entities.classId) && /\b(?:attendance|fees?|students?|absentees?|below|above|paid)\b/i.test(text) && !/\b(?:of|for)\s+[a-z]+/i.test(text.replace(REGEX_PATTERNS.DEPARTMENT, '').replace(REGEX_PATTERNS.CLASS_ID, '')));
 
     if (!entities.studentId && !isAggregateQuery && candidateName) {
       entities.studentName = candidateName;

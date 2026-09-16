@@ -331,7 +331,11 @@ export class QueryNormalizer {
       if (this.TYPO_DICTIONARY[token]) {
         return this.TYPO_DICTIONARY[token];
       }
-      // 2. Fuzzy Match only for words of length >= 4 that are not stop words
+      // 2. If token is already an exact valid domain term, preserve it without fuzzy mangling
+      if (this.KNOWN_ATTACHED_SUFFIXES.includes(token) || token === 'paid') {
+        return token;
+      }
+      // 3. Fuzzy Match only for words of length >= 4 that are not stop words
       if (token.length >= 4 && !STOP_WORDS.has(token)) {
         for (const [typo, target] of Object.entries(this.TYPO_DICTIONARY)) {
           if (typo.length >= 4 && Math.abs(token.length - typo.length) <= 1 && this.damerauLevenshteinDistance(token, typo) <= 1) {

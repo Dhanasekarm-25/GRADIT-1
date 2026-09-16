@@ -70,3 +70,33 @@ export async function getPendingFeesTool(
     data: pendingList,
   };
 }
+
+export const GetPaidFeesSchema = z.object({
+  departmentIdentifier: z.string().optional(),
+  classIdentifier: z.string().optional(),
+  semester: z.string().optional(),
+  academicYear: z.string().optional(),
+});
+
+export async function getPaidFeesTool(
+  input: z.infer<typeof GetPaidFeesSchema>,
+  context: SecurityContext
+): Promise<FeeToolResult> {
+  authorizeToolExecution(context, 'READ_FEES');
+  const validated = GetPaidFeesSchema.parse(input);
+
+  const paidList = await dbClient.getPaidFees(validated);
+
+  let title = 'Overall Fee Paid List';
+  if (validated.departmentIdentifier) {
+    title = `Fee Paid List — ${validated.departmentIdentifier.toUpperCase()}`;
+  } else if (validated.classIdentifier) {
+    title = `Fee Paid List — ${validated.classIdentifier.toUpperCase()}`;
+  }
+
+  return {
+    type: 'LIST',
+    title,
+    data: paidList,
+  };
+}
