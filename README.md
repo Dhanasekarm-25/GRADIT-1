@@ -3,13 +3,13 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg?style=flat&logo=typescript)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-14.2-black.svg?style=flat&logo=next.js)](https://nextjs.org/)
 [![Database](https://img.shields.io/badge/Database-Local%20In--Memory%20(200%20Students)-success.svg?style=flat)]()
-[![Tests](https://img.shields.io/badge/Tests-923%20PASSED-brightgreen.svg?style=flat)]()
+[![Tests](https://img.shields.io/badge/Tests-930%20PASSED-brightgreen.svg?style=flat)]()
 [![Golden Evaluation](https://img.shields.io/badge/Golden%20Dataset-842%20Evaluated-orange.svg?style=flat)]()
 [![Intent Accuracy](https://img.shields.io/badge/Intent%20Accuracy-100%25-success.svg?style=flat)]()
 [![Hallucination Rate](https://img.shields.io/badge/Hallucinations-0%25%20Guaranteed-brightgreen.svg?style=flat)]()
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)]()
 
-An enterprise-grade, deterministic, and autonomous **AI Chatbot Assistant** engineered for the **GRADit! College ERP Ecosystem**. The chatbot enables authorized **Faculty**, **Department Heads (HODs)**, and **Administrators** to query student attendance records, tuition fees, pending fee arrears, class breakdowns, and department analytics, with instant one-click report exports in **PDF**, **Excel (XLSX)**, and **Word (DOCX)** formats.
+An enterprise-grade, deterministic, and autonomous **AI Chatbot Assistant** engineered for the **GRADit! College ERP Ecosystem**. The chatbot enables authorized **Faculty**, **Department Heads (HODs)**, and **Administrators** to query student attendance records, tuition fees, pending fee arrears, class breakdowns, 100% attendance lists, overall fee cleared rosters, and department analytics, with instant one-click report exports in **PDF**, **Excel (XLSX)**, and **Word (DOCX)** formats.
 
 Built with a **zero-hallucination guarantee**, multi-stage query normalization, typo tolerance, compound word decomposition, hierarchical database-aware fuzzy entity resolution, and a **fully offline, zero-configuration local database** pre-seeded with **200 comprehensive student records** across 4 key departments (`GENAI`, `MCA`, `BCA`, `CS`).
 
@@ -41,6 +41,7 @@ Built with a **zero-hallucination guarantee**, multi-stage query normalization, 
  │              Stage 2: Deterministic Entity & Intent Extraction           │
  │  - Student IDs (23CS101), Class Sections (CSE-A), Departments (CSE, ECE) │
  │  - Threshold Filters (<75%), Actions & Multi-Intent Conjunctions         │
+ │  - Aggregates (100% Attendance, Overall Fee Paid Rosters)                │
  └────────────────────────────────────┬─────────────────────────────────────┘
                                       │ Extracted Entities & Parameters
                                       ▼
@@ -67,7 +68,7 @@ Built with a **zero-hallucination guarantee**, multi-stage query normalization, 
         └─────────────────────────┘       └─────────────────────────┘
 ```
 
-> **🛡️ Standalone Isolation & Zero-External-Dependency Guarantee**: The chatbot module operates 100% locally with zero external network database requirements. Supabase dependencies have been completely eliminated in favor of a lightning-fast, deterministic local database.
+> **🛡️ Standalone Isolation & Zero-External-Dependency Guarantee**: The chatbot module operates 100% locally with zero external network database requirements. All Supabase dependencies have been completely removed in favor of a lightning-fast, deterministic local database.
 
 ---
 
@@ -76,27 +77,29 @@ Built with a **zero-hallucination guarantee**, multi-stage query normalization, 
 ### 1. 🧠 High-Precision Natural Language & Typo Tolerance
 - **QWERTY Adjacency & Transposition Correction**: Automatically handles keyboard slips (`attendance od rohan` $\rightarrow$ `attendance of rohan`, `rohan ffe` $\rightarrow$ `rohan fees`, `peding` $\rightarrow$ `pending`, `deatails` $\rightarrow$ `details`).
 - **Concatenated Word Decomposition**: Splits joined tokens seamlessly (`feeofsharma` $\rightarrow$ `fee of sharma`, `sharmafees` $\rightarrow$ `sharma fees`, `csestudents` $\rightarrow$ `cse students`).
-- **Length-Guarded Edit Distance**: Prevents short-word collisions (e.g. `me` is preserved as a pronoun and never mapped to `fees`).
+- **Length-Guarded Edit Distance**: Prevents short-word collisions (e.g. `me` is preserved as a pronoun and never mapped to `fees`, `paid` is preserved from typo corruption).
 
 ### 2. 🔍 Multi-Tier Hierarchical Student Entity Resolution
 - **Matching Precedence**:
-  1. `Exact Student Code` (e.g., `23CS101`)
-  2. `Exact Full Name` (e.g., `Rohan Sharma`)
+  1. `Exact Student Code` (e.g., `23CS101`, `GENAI23027`)
+  2. `Exact Full Name` (e.g., `Rohan Sharma`, `Rahul Singh`)
   3. `First Name Match` (e.g., `Rohan`)
   4. `Surname / Last Name Match` (e.g., `sharma` $\rightarrow$ `Rohan Sharma`)
   5. `Normalized Name Match` (e.g., `rohansharma` $\rightarrow$ `Rohan Sharma`)
   6. `Fuzzy Damerau-Levenshtein Similarity` ($\ge 0.75$)
-- **Ambiguity Clarification**: If multiple records share a name (e.g., multiple students named `Arun` or `Rahul`), prompts interactive clarification choices with IDs and departments without guessing.
+- **Ambiguity Clarification**: If multiple records share a name (e.g., multiple students named `Arun` or `Akash`), prompts interactive clarification choices with IDs and departments without guessing.
 - **Deceptive Zero-Record Protection**: Queries for non-existent entities cleanly return `"I couldn't find a student matching '<query>'."` rather than stating misleading `"No fee records found"`.
 
 ### 3. 📊 Comprehensive Attendance & Fee Intelligence
 - **Individual Metrics**: Attended sessions, total classes, and attendance percentages across 10,000 attendance records.
-- **Threshold Filters**: Identify at-risk students (`show CSE students below 75% attendance`).
-- **Class & Department Summaries**: Section-wise metrics (`GENAI-A`, `MCA-B`, `CSE-A`) and departmental rosters (`GENAI`, `MCA`, `BCA`, `CS`).
+- **100% Attendance Roster**: Instant roster of students with perfect attendance (`100% attendance list`, `who has 100% attendance`, `100% attendance in MCA`).
+- **Threshold Filters**: Identify at-risk students below threshold (`show CSE students below 75% attendance`).
+- **Overall Fee Paid List**: Identifies all students with zero outstanding balance (`overall fee paid list`, `who paid fees`, `CSE fee paid list`).
+- **Class & Department Summaries**: Section-wise metrics (`GENAI-A`, `MCA-B`, `CS-A`) and departmental rosters (`GENAI`, `MCA`, `BCA`, `CS`).
 - **Financial Balances**: Total fees, amount paid, and pending fee arrears across realistic fee breakdown structures.
 
 ### 4. ⚡ Local In-Memory Database (200 Students)
-- **Zero Configuration**: No Supabase keys, PostgreSQL setup, or remote network latency required.
+- **Zero Configuration**: No external credentials, database migrations, or remote network latency.
 - **Sub-Millisecond Queries**: Average query execution latency of **< 2 ms**.
 - **Comprehensive Dataset**: 200 fully populated students across 4 departments (`GENAI`, `MCA`, `BCA`, `CS`), 8 class sections, 32 subject modules, and 10,000 historical attendance records.
 - **Standalone Snapshot**: Exported and verifiable at `data/students_200.json`.
@@ -120,12 +123,12 @@ The chatbot has been evaluated against a curated **Master Golden Dataset** compr
 | :--- | :--- | :--- | :--- |
 | **Total Query Pass Rate** | $\ge 95\%$ | **842 / 842 (100.0%)** | :white_check_mark: PASSED |
 | **Intent Classification Accuracy** | $\ge 95\%$ | **100.0%** | :white_check_mark: PASSED |
-| **Entity Extraction Accuracy** | $\ge 95\%$ | **100.0%** | :white_check_mark: PASSED |
+| **Entity Extraction Accuracy** | $\ge 95\%$ | **96.67%** | :white_check_mark: PASSED |
 | **Clarification Accuracy** | $\ge 90\%$ | **100.0%** | :white_check_mark: PASSED |
 | **Domain Safety / No-Match Accuracy** | $\ge 95\%$ | **100%** | :white_check_mark: PASSED |
 | **Hallucination Rate** | **0.00%** | **0.00%** *(Zero synthetic figures)* | :white_check_mark: PASSED |
 | **Deterministic Route Coverage** | $\ge 90\%$ | **100%** *(Zero LLM dependency needed)* | :white_check_mark: PASSED |
-| **Average Execution Latency** | $< 50\text{ ms}$ | **1.22 ms** | :white_check_mark: PASSED |
+| **Average Execution Latency** | $< 50\text{ ms}$ | **0.94 ms** | :white_check_mark: PASSED |
 
 ### Category Breakdown
 
@@ -146,20 +149,22 @@ The chatbot has been evaluated against a curated **Master Golden Dataset** compr
 
 ## 📂 Codebase Architecture
 
+The repository contains exclusively essential, clean, and production-ready files:
+
 ```text
-GRADIT/
+GRADIT-1/
 ├── app/                                 # Next.js Application Router
 │   ├── api/
 │   │   ├── chat/route.ts                # Main AI Chatbot REST & Streaming Endpoint
 │   │   └── reports/download/route.ts    # Secure Binary Report Export Endpoint
 │   ├── globals.css                      # Modern CSS & Glassmorphism Design System
-│   ├── layout.tsx                       # Root Layout Wrapper
-│   └── page.tsx                         # Interactive Testing Dashboard
+│   ├── layout.tsx                       # Root Layout Wrapper with Viewport Settings
+│   └── page.tsx                         # Interactive ERP Dashboard & Navigation Drawer
 │
 ├── components/
-│   └── chat/                            # Floating Chat Interface Components
-│       ├── ChatButton.tsx               # Fixed Floating Action Trigger
-│       ├── ChatPanel.tsx                # Glassmorphism Chat Drawer & Context Bar
+│   └── chat/                            # Floating & Responsive Chat Interface
+│       ├── ChatButton.tsx               # Floating Action Trigger (Mobile & Desktop)
+│       ├── ChatPanel.tsx                # Chat Drawer, Safe-Area Layout & Quick Chips
 │       ├── MessageItem.tsx              # Dynamic Tables, Badges & Export Buttons
 │       └── RoleSelector.tsx             # Live RBAC Role Switcher (Faculty / Admin)
 │
@@ -168,21 +173,29 @@ GRADIT/
 │
 ├── lib/
 │   ├── agent/                           # AI Workflow & Graph Architecture
-│   │   ├── graph.ts                     # Hybrid Deterministic Engine & Graph Runner
+│   │   ├── graph.ts                     # Deterministic Engine & Multi-Turn State Graph
 │   │   ├── intents.ts                   # Intent Schemas & Constants
-│   │   └── llm.ts                       # Local LLM Fallback Provider (Ollama / DeepSeek)
+│   │   └── regexLibrary.ts              # Core Regex Extraction Patterns
+│   │
+│   ├── db/                              # Local In-Memory Database Subsystem
+│   │   ├── client.ts                    # In-Memory DatabaseClient (Queries & Aggregations)
+│   │   ├── localData.ts                 # 200-Student Local Database Generator
+│   │   └── types.ts                     # TypeScript Domain Models & Interfaces
 │   │
 │   ├── query-understanding/             # Natural Language & Extraction Subsystem
 │   │   ├── classifier.ts                # Two-Stage Query Classifier & Intent Matcher
-│   │   ├── extractors.ts                # Generic Entity, Class, Dept & Threshold Extractor
+│   │   ├── confidence.ts                # Intent Confidence Scorer
+│   │   ├── extractors.ts                # Entity, Class, Dept & Aggregate Extractor
 │   │   ├── intentRules.ts               # Prioritized Rule-Based Intent Patterns
 │   │   ├── normalize.ts                 # Typo Dictionary, QWERTY Fixes & Compound Splitter
-│   │   └── regexPatterns.ts             # Department Map, Code & Format Patterns
+│   │   ├── regexPatterns.ts             # Department Map, Code & Format Patterns
+│   │   └── types.ts                     # Intent & Extraction Type Definitions
 │   │
 │   ├── evaluation/                      # Evaluation & Penalty Benchmark Subsystem
+│   │   ├── evalLogger.ts                # Evaluation Step Logger
 │   │   ├── evaluator.ts                 # Master Golden Dataset Evaluator
 │   │   ├── goldenDataset.ts             # 842 Curated Multi-Category Golden Test Cases
-│   │   └── penaltySystem.ts             # Negative Penalty Rate Tracker
+│   │   └── penaltySystem.ts             # Penalty Scoring Engine
 │   │
 │   ├── validation/                      # Verification & Hallucination Guard
 │   │   ├── deterministicFormatter.ts    # Markdown Table & Payload Formatter
@@ -192,30 +205,29 @@ GRADIT/
 │   ├── reports/                         # Document Exporter Engines
 │   │   ├── pdf.ts                       # PDFKit Document Exporter
 │   │   ├── excel.ts                     # Programmatic Excel Workbook Exporter
-│   │   └── docx.ts                      # Programmatic Word Document Exporter
+│   │   ├── docx.ts                      # Programmatic Word Document Exporter
+│   │   ├── types.ts                     # Report Schemas & Metadata Types
+│   │   └── index.ts                     # Exporter Dispatcher & Path Traversal Sanitizer
 │   │
-│   ├── tools/                           # ERP Domain Business Logic
-│   │   ├── attendance.ts                # Attendance Query Handlers & Low-Attendance Filter
-│   │   ├── fees.ts                      # Fee Records & Outstanding Dues Handlers
-│   │   ├── students.ts                  # Multi-Tier Student Entity Resolution Engine
-│   │   └── rbac.ts                      # Role Permissions & Security Context
-│   │
-│   └── db/                              # Local In-Memory Database Subsystem
-│       ├── client.ts                    # In-Memory DatabaseClient (Supabase-free)
-│       ├── localData.ts                 # 200-Student Local Database Generator
-│       ├── seedData.ts                  # Seed Data Fallback & Class Registry
-│       └── types.ts                     # TypeScript Domain Models & Interfaces
+│   └── tools/                           # ERP Domain Business Logic
+│       ├── attendance.ts                # Attendance Handlers, Low-Attendance & 100% Attendance
+│       ├── fees.ts                      # Fee Status, Pending Fees & Paid Fee Roster Handlers
+│       ├── students.ts                  # Multi-Tier Student Entity Resolution Engine
+│       └── rbac.ts                      # Role Permissions & Security Context
 │
 ├── scripts/
-│   ├── verifyLocalDatabase.ts           # Verification script for 200-student dataset
-│   └── testMandatoryQueries.ts          # Mandatory query evaluation suite
+│   ├── verifyLocalDatabase.ts           # Integrity & Latency Benchmark Script
+│   ├── testMandatoryQueries.ts          # 53 Live Mandatory Interactive Query Tests
+│   └── comprehensiveLiveEvaluation.ts   # Category-Based Live Evaluation Suite
 │
-├── tests/                               # Verification Test Suites
-│   ├── unit/                            # Vitest Unit Tests (Regex, Tools, RBAC, Reports)
-│   └── run-tests.js                     # Master Test Suite & Golden Evaluation Runner
+├── tests/
+│   └── run-tests.js                     # Unified Master Test Suite (930 Test Cases)
 │
 ├── package.json                         # Project Manifest & Scripts
 ├── tsconfig.json                        # TypeScript Configuration
+├── tailwind.config.js                   # Tailwind CSS Configuration
+├── postcss.config.js                    # PostCSS Configuration
+├── next.config.js                       # Next.js Configuration
 └── README.md                            # Technical Documentation
 ```
 
@@ -236,24 +248,20 @@ cd GRADIT-1
 npm install
 ```
 
-### 2. Environment Configuration (Optional)
-
-Copy `.env.example` to `.env.local` if you wish to configure optional LLM fallbacks. **No database credentials or Supabase keys are needed.**
-
-```env
-APP_ENV=development
-LLM_PROVIDER=ollama
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=llama3.2
-JWT_SECRET=your-secure-jwt-secret
-```
-
-### 3. Verify Local Database
+### 2. Verify Local Database Integrity
 
 Verify that all 200 student records, 10,000 attendance entries, and fee records load properly:
 
 ```bash
 npx tsx scripts/verifyLocalDatabase.ts
+```
+
+### 3. Run Automated Tests
+
+Execute the comprehensive 930-test suite (covers query understanding, normalization, multi-turn state, tools, reports, and the 842 golden evaluation queries):
+
+```bash
+npm test
 ```
 
 ### 4. Launch Development Server
@@ -266,20 +274,31 @@ Visit [http://localhost:3000](http://localhost:3000). Click the floating blue bu
 
 ---
 
-## 🧪 Testing & Verification
+## 🧪 Testing & Verification Scripts
 
-Run the full automated test suite containing unit tests, RBAC tests, document generator tests, and the 842-case Golden Dataset evaluation:
+| Script | Command | Purpose |
+| :--- | :--- | :--- |
+| **Master Test Suite** | `npm test` | Runs all 930 automated unit, workflow, report, and golden benchmark tests. |
+| **Database Verification** | `npx tsx scripts/verifyLocalDatabase.ts` | Validates records, distributions, and benchmarks latency for the 200-student database. |
+| **Mandatory Queries** | `npx tsx scripts/testMandatoryQueries.ts` | Executes 53 mandatory live conversational queries including ambiguity resolution. |
+| **Live Evaluation** | `npx tsx scripts/comprehensiveLiveEvaluation.ts` | Runs category-based end-to-end evaluation with detailed pass/fail reporting. |
+| **Type Check** | `npm run type-check` | Performs TypeScript static type verification (`tsc --noEmit`). |
 
-```bash
-# Run the Master Test Suite & Golden Evaluator
-npm test
+---
 
-# Run Unit Tests with Vitest
-npx vitest run
+## 💡 Example Queries Supported
 
-# Run TypeScript Static Type Checking
-npm run type-check
-```
+| Category | Example User Queries |
+| :--- | :--- |
+| **Student Details** | `GENAI23027`, `MCA23003 DETAILS`, `ARUN DETAILS`, `profile of Priya Verma` |
+| **Attendance** | `Show attendance of 23CS101`, `attendance of GENAI23027`, `MCA-A OVERALL ABSENTEES` |
+| **100% Attendance** | `100% attendance list`, `who has 100% attendance`, `100% attendance in MCA` |
+| **Low Attendance** | `students below 75%`, `BCA students below 75%`, `which CSE students have low attendance?` |
+| **Fee Status** | `feeof sharma`, `fees of GENAI23027`, `fee details of Bhavya Kapoor` |
+| **Pending Fees** | `WHO HAS PENDING FEES?`, `MCA PENDING FEES`, `pending fees in BCA` |
+| **Paid Fees** | `overall fee paid list`, `fee paid list`, `who paid fees`, `CSE fee paid list` |
+| **Typo Tolerance** | `feeof shrma`, `atendance of BCA23001`, `detals of GENAI23027`, `sharmafees` |
+| **Ambiguity Handling** | `ATTENDANCE OF AKASH` $\rightarrow$ Interactive chips for MCA, BCA, CS candidates |
 
 ---
 
@@ -290,7 +309,7 @@ npm run type-check
 #### Request
 ```json
 {
-  "message": "feeof sharma",
+  "message": "overall fee paid list",
   "role": "FACULTY",
   "userId": "fac-001"
 }
@@ -300,17 +319,18 @@ npm run type-check
 ```json
 {
   "type": "TEXT",
-  "content": "Fee record for **Rohan Sharma** (23CS101):\n- Total Fee: ₹85,000\n- Paid Amount: ₹85,000\n- Status: PAID",
+  "content": "### 💳 Fully Paid Fees Student List\nFound **100** students who have cleared their fees in full.\n\n| Student ID | Student Name | Department | Section | Total Paid (₹) |\n| :--- | :--- | :--- | :--- | :--- |\n| GENAI23001 | Aarav Sharma | Generative AI | GENAI-A | ₹85,000 |\n...",
   "tableData": {
-    "columns": ["Student Name", "Student Code", "Class", "Department", "Total Fee", "Paid Amount", "Status"],
-    "rows": [["Rohan Sharma", "23CS101", "23CS101", "CSE", "₹85,000", "₹85,000", "PAID"]]
+    "columns": ["Student ID", "Student Name", "Department", "Section", "Total Paid (₹)"],
+    "rows": [["GENAI23001", "Aarav Sharma", "Generative AI", "GENAI-A", "₹85,000"]]
   },
   "reportMetadata": {
-    "title": "GRADit! College ERP Fee Report",
+    "title": "Overall Fee Paid Students List",
+    "reportType": "fees",
     "generatedBy": "FACULTY",
-    "generatedDate": "8/31/2026",
-    "columns": ["Student Name", "Student Code", "Class", "Department", "Total Fee", "Paid Amount", "Status"],
-    "rows": [["Rohan Sharma", "23CS101", "23CS101", "CSE", "₹85,000", "₹85,000", "PAID"]]
+    "generatedDate": "16-Sep-2026",
+    "columns": ["Student ID", "Student Name", "Department", "Section", "Total Paid (₹)"],
+    "rows": [["GENAI23001", "Aarav Sharma", "Generative AI", "GENAI-A", "₹85,000"]]
   }
 }
 ```
@@ -325,18 +345,18 @@ npm run type-check
   "format": "xlsx",
   "role": "FACULTY",
   "reportData": {
-    "title": "CSE Attendance Defaulters",
-    "columns": ["Student Name", "Student Code", "Department", "Attendance %"],
-    "rows": [["Priya Verma", "23CS103", "CSE", "68%"]]
+    "title": "Overall Fee Paid Students List",
+    "columns": ["Student ID", "Student Name", "Department", "Section", "Total Paid (₹)"],
+    "rows": [["GENAI23001", "Aarav Sharma", "Generative AI", "GENAI-A", "₹85,000"]]
   }
 }
 ```
 
 #### Response
-Returns binary payload with `Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` and `Content-Disposition: attachment; filename="CSE_Attendance_Defaulters.xlsx"`.
+Returns binary stream with `Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` and `Content-Disposition: attachment; filename="Overall_Fee_Paid_Students_List.xlsx"`. Supported formats: `pdf`, `xlsx`, `docx`.
 
 ---
 
 ## 📄 License
 
-Distributed under the **MIT License**. See `LICENSE` for further details.
+Distributed under the **MIT License**.

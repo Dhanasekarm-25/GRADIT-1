@@ -327,6 +327,64 @@ async function runTestSuite() {
     assert.ok(res.content.includes('I can help with attendance, fees, student details'));
   });
 
+  // --- Overall Fee Paid List & 100% Attendance List Tests ---
+  await test('Execute "overall fee paid list" -> returns 100 paid students with table', async () => {
+    const res = await runAgentWorkflow('overall fee paid list', facultyContext);
+    assert.strictEqual(res.type, 'TEXT');
+    assert.ok(res.content.includes('Paid Fees') || res.content.includes('100'));
+    assert.ok(res.tableData !== undefined);
+    assert.strictEqual(res.tableData.rows.length, 100);
+    assert.ok(res.reportMetadata !== undefined);
+  });
+
+  await test('Execute "100% attendance list" -> returns 7 students with table', async () => {
+    const res = await runAgentWorkflow('100% attendance list', facultyContext);
+    assert.strictEqual(res.type, 'TEXT');
+    assert.ok(res.content.includes('100% Attendance') || res.content.includes('7'));
+    assert.ok(res.tableData !== undefined);
+    assert.strictEqual(res.tableData.rows.length, 7);
+    assert.ok(res.reportMetadata !== undefined);
+  });
+
+  await test('Execute exact code lookup "MCA23003" -> prompts clarification or profile', async () => {
+    const res = await runAgentWorkflow('MCA23003', facultyContext);
+    assert.ok(res.type === 'CLARIFICATION' || res.type === 'TEXT');
+    assert.ok(res.content.includes('Rashmi Bhatia') || res.content.includes('MCA23003'));
+  });
+
+  await test('Execute exact code details "GENAI23027 DETAILS"', async () => {
+    const res = await runAgentWorkflow('GENAI23027 DETAILS', facultyContext);
+    assert.strictEqual(res.type, 'TEXT');
+    assert.ok(res.content.includes('Rahul Singh'));
+    assert.ok(res.content.includes('GENAI23027'));
+  });
+
+  // --- Direct Tool Execution Tests ---
+  const { getPaidFeesTool } = await import('../lib/tools/fees.ts');
+  const { getPerfectAttendanceStudentsTool } = await import('../lib/tools/attendance.ts');
+  const { findStudentTool } = await import('../lib/tools/students.ts');
+
+  await test('Direct Tool: getPaidFeesTool returns 100 students', async () => {
+    const result = await getPaidFeesTool({}, facultyContext);
+    assert.strictEqual(result.type, 'LIST');
+    assert.strictEqual(result.data.length, 100);
+  });
+
+  await test('Direct Tool: getPerfectAttendanceStudentsTool returns 7 students', async () => {
+    const result = await getPerfectAttendanceStudentsTool({}, facultyContext);
+    assert.strictEqual(result.type, 'LIST');
+    assert.strictEqual(result.data.length, 7);
+    result.data.forEach((s) => assert.strictEqual(s.percentage, 100));
+  });
+
+  await test('Direct Tool: findStudentTool with exact code', async () => {
+    const result = await findStudentTool({ query: 'GENAI23027' }, facultyContext);
+    assert.strictEqual(result.type, 'SINGLE_STUDENT');
+    assert.strictEqual(result.data.student_code, 'GENAI23027');
+    assert.strictEqual(result.data.first_name, 'Rahul');
+  });
+
+
   // 4. Report Exporter Programmatic Validation Tests (PDF, XLSX, DOCX)
   console.log('\n--- 4. Report Exporters Programmatic OpenXML & PDF Tests ---');
   const { generatePdfReportBuffer } = await import('../lib/reports/pdf.ts');

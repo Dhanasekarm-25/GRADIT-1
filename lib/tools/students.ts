@@ -52,7 +52,7 @@ function stringSimilarity(s1: string, s2: string): number {
 
 /**
  * Complete Database-Aware Student Name & Entity Resolution Pipeline.
- * Strictly queries read-only Supabase PostgreSQL tables in priority order:
+ * Strictly queries read-only local database tables in priority order:
  * 
  * PRIORITY 1 — EXACT STUDENT CODE
  * PRIORITY 2 — EXACT FULL NAME
