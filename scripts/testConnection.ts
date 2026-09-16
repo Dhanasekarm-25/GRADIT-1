@@ -1,34 +1,19 @@
-import { testSupabaseConnection, isSupabaseConfigured } from '../lib/supabase';
+import { localDatabase } from '../lib/db/localData';
 
 async function main() {
   console.log('====================================================');
-  console.log('GRADit! ERP — Supabase Connection Status Test');
+  console.log('GRADit! ERP — Database Status Test');
   console.log('====================================================\n');
 
-  if (!isSupabaseConfigured()) {
-    console.log('STATUS: STANDBY');
-    console.log('Missing Environment Variables:');
-    console.log('  - SUPABASE_URL');
-    console.log('  - SUPABASE_SERVICE_ROLE_KEY or SUPABASE_ANON_KEY');
-    console.log('\nPlease add these variables to your .env.local file to connect to live Supabase.');
-    console.log('====================================================');
-    return;
-  }
-
-  const result = await testSupabaseConnection();
-
-  if (result.success) {
-    console.log('SUPABASE CONNECTION: SUCCESS');
-    if (result.projectUrl) {
-      console.log(`Target Project Host: ${result.projectUrl}`);
-    }
-  } else {
-    console.log('SUPABASE CONNECTION: FAILED');
-    console.log(`Error: ${result.message}`);
-  }
+  console.log('DATABASE TYPE: Local In-Memory (Zero Supabase Dependency)');
+  console.log(`✓ Active Students: ${localDatabase.students.length}`);
+  console.log(`✓ Active Departments: ${localDatabase.departments.length}`);
+  console.log(`✓ Attendance Records: ${localDatabase.attendance.length}`);
+  console.log(`✓ Fee Records: ${localDatabase.fees.length}`);
+  console.log('\nSTATUS: READY & OPERATIONAL');
   console.log('====================================================');
 }
 
 main().catch((err) => {
-  console.error('Connection test error:', err.message);
+  console.error('Database status error:', err.message);
 });

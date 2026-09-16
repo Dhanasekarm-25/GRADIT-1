@@ -1,10 +1,5 @@
 import { runAgentWorkflow } from '../lib/agent/graph';
-import { createMockSupabaseClient } from '../tests/mockSupabase';
-import { setTestSupabaseClient } from '../lib/supabase';
 
-// Use test mock client for standalone validation script
-const mockClient = createMockSupabaseClient();
-setTestSupabaseClient(mockClient);
 
 async function runComprehensiveVerification() {
   console.log('====================================================');

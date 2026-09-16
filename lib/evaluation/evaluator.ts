@@ -64,6 +64,7 @@ export class MasterEvaluator {
           (parsed.intent === 'BARE_ENTITY' ||
             parsed.intent === 'MULTI_INTENT' ||
             parsed.intent === 'STUDENT_DETAILS' ||
+            parsed.intent === 'STUDENT_SEARCH' ||
             parsed.intent === 'REPORT_REQUEST'));
 
       if (intentMatched) {

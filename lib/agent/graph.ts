@@ -380,7 +380,7 @@ async function executeDeterministicQuery(
             lastReportData
           );
         }
-        return { type: 'TEXT', content: `I couldn't find a student or subject matching '${queryStr}'.` };
+        return { type: 'TEXT', content: `I couldn't find a student matching '${queryStr}'.` };
       }
       if (result.type === 'MULTIPLE_STUDENTS') {
         const candidates = await buildCandidates(result.matches);
@@ -423,7 +423,7 @@ async function executeDeterministicQuery(
             lastReportData
           );
         }
-        return { type: 'TEXT', content: `I couldn't find a student or subject matching '${targetQuery}'.` };
+        return { type: 'TEXT', content: `I couldn't find a student matching '${targetQuery}'.` };
       }
       if (result.type === 'MULTIPLE_STUDENTS') {
         const candidates = await buildCandidates(result.matches);
@@ -447,7 +447,7 @@ async function executeDeterministicQuery(
           originalMessage: erpQuery.originalQuery,
         });
       }
-      return { type: 'TEXT', content: `I couldn't find a student or subject matching '${targetQuery}'.` };
+      return { type: 'TEXT', content: `I couldn't find a student matching '${targetQuery}'.` };
     }
 
     case 'ATTENDANCE_CLASS': {
@@ -680,12 +680,24 @@ async function executeDeterministicQuery(
         };
       }
       if (result.type === 'SINGLE_STUDENT') {
-        return executeIntent({
-          intent: 'STUDENT_DETAILS',
-          studentCode: result.data.student_code,
-          securityContext,
-          originalMessage: erpQuery.originalQuery,
-        });
+        return {
+          type: 'CLARIFICATION',
+          content: `What would you like to check for **${result.data.name}** (${result.data.student_code})? Attendance, Fees, or Profile?`,
+          pendingQuery: {
+            intent: 'STUDENT_DETAILS',
+            originalMessage: erpQuery.originalQuery,
+            entity: targetQuery,
+            candidates: [
+              {
+                id: result.data.id,
+                code: result.data.student_code,
+                name: result.data.name,
+                class: formatClassName(result.data.class_id),
+                dept: formatDepartmentName(result.data.department_id),
+              },
+            ],
+          },
+        };
       }
       return {
         type: 'CLARIFICATION',

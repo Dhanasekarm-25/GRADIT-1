@@ -80,8 +80,8 @@ export async function resolveStudentEntity(rawQuery: string): Promise<StudentToo
     console.log(`[ENTITY] ${displayName}`);
     console.log(`[ENTITY TYPE] student_code`);
     console.log(`[RESOLUTION STRATEGY] student_code_exact`);
-    console.log(`[SUPABASE TABLE] students`);
-    console.log(`[SUPABASE COLUMN] student_code`);
+    console.log(`[LOCAL DB TABLE] students`);
+    console.log(`[LOCAL DB COLUMN] student_code`);
     console.log(`[RESULT COUNT] ${byCode.length}`);
     console.log(`[MATCHED CODES] ${JSON.stringify(byCode.map((s) => s.student_code))}`);
 
@@ -102,8 +102,8 @@ export async function resolveStudentEntity(rawQuery: string): Promise<StudentToo
     console.log(`[ENTITY] ${displayName}`);
     console.log(`[ENTITY TYPE] student_name`);
     console.log(`[RESOLUTION STRATEGY] full_name_exact`);
-    console.log(`[SUPABASE TABLE] students`);
-    console.log(`[SUPABASE COLUMN] full_name`);
+    console.log(`[LOCAL DB TABLE] students`);
+    console.log(`[LOCAL DB COLUMN] full_name`);
     console.log(`[RESULT COUNT] ${byFullName.length}`);
     console.log(`[MATCHED CODES] ${JSON.stringify(byFullName.map((s) => s.student_code))}`);
 
@@ -128,8 +128,8 @@ export async function resolveStudentEntity(rawQuery: string): Promise<StudentToo
       console.log(`[ENTITY] ${displayName}`);
       console.log(`[ENTITY TYPE] student_name`);
       console.log(`[RESOLUTION STRATEGY] combined_first_last_exact`);
-      console.log(`[SUPABASE TABLE] students`);
-      console.log(`[SUPABASE COLUMN] first_name + last_name`);
+      console.log(`[LOCAL DB TABLE] students`);
+      console.log(`[LOCAL DB COLUMN] first_name + last_name`);
       console.log(`[RESULT COUNT] ${byCombined.length}`);
       console.log(`[MATCHED CODES] ${JSON.stringify(byCombined.map((s) => s.student_code))}`);
 
@@ -151,8 +151,8 @@ export async function resolveStudentEntity(rawQuery: string): Promise<StudentToo
     console.log(`[ENTITY] ${displayName}`);
     console.log(`[ENTITY TYPE] student_name`);
     console.log(`[RESOLUTION STRATEGY] first_name_exact`);
-    console.log(`[SUPABASE TABLE] students`);
-    console.log(`[SUPABASE COLUMN] first_name`);
+    console.log(`[LOCAL DB TABLE] students`);
+    console.log(`[LOCAL DB COLUMN] first_name`);
     console.log(`[RESULT COUNT] ${byFirstName.length}`);
     console.log(`[MATCHED CODES] ${JSON.stringify(byFirstName.map((s) => s.student_code))}`);
 
@@ -173,8 +173,8 @@ export async function resolveStudentEntity(rawQuery: string): Promise<StudentToo
     console.log(`[ENTITY] ${displayName}`);
     console.log(`[ENTITY TYPE] student_name`);
     console.log(`[RESOLUTION STRATEGY] last_name_exact`);
-    console.log(`[SUPABASE TABLE] students`);
-    console.log(`[SUPABASE COLUMN] last_name`);
+    console.log(`[LOCAL DB TABLE] students`);
+    console.log(`[LOCAL DB COLUMN] last_name`);
     console.log(`[RESULT COUNT] ${byLastName.length}`);
     console.log(`[MATCHED CODES] ${JSON.stringify(byLastName.map((s) => s.student_code))}`);
 
@@ -196,7 +196,7 @@ export async function resolveStudentEntity(rawQuery: string): Promise<StudentToo
       console.log(`[ENTITY] ${displayName}`);
       console.log(`[ENTITY TYPE] student_name`);
       console.log(`[RESOLUTION STRATEGY] contains`);
-      console.log(`[SUPABASE TABLE] students`);
+      console.log(`[LOCAL DB TABLE] students`);
       console.log(`[RESULT COUNT] ${byContains.length}`);
       console.log(`[MATCHED CODES] ${JSON.stringify(byContains.map((s) => s.student_code))}`);
 
@@ -223,7 +223,7 @@ export async function resolveStudentEntity(rawQuery: string): Promise<StudentToo
     const lnSim = student.last_name ? stringSimilarity(query, student.last_name) : 0;
     const sim = Math.max(fullNameSim, fnSim, lnSim);
 
-    if (sim >= 0.85) {
+    if (sim >= 0.80) {
       if (Math.abs(sim - highestSimilarity) < 0.001) {
         bestMatches.push({ student, score: sim });
       } else if (sim > highestSimilarity) {
@@ -233,7 +233,7 @@ export async function resolveStudentEntity(rawQuery: string): Promise<StudentToo
     }
   }
 
-  if (bestMatches.length === 1 && highestSimilarity >= 0.85) {
+  if (bestMatches.length === 1 && highestSimilarity >= 0.80) {
     return {
       type: 'SINGLE_STUDENT',
       data: bestMatches[0].student,
@@ -243,7 +243,7 @@ export async function resolveStudentEntity(rawQuery: string): Promise<StudentToo
     };
   }
 
-  if (bestMatches.length > 1 && highestSimilarity >= 0.85) {
+  if (bestMatches.length > 1 && highestSimilarity >= 0.80) {
     return {
       type: 'MULTIPLE_STUDENTS',
       count: bestMatches.length,

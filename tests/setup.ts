@@ -1,13 +1,11 @@
 import { vi } from 'vitest';
-import { createMockSupabaseClient } from './mockSupabase';
 
-const mockClient = createMockSupabaseClient();
-
-vi.mock('../lib/supabase', async (importOriginal) => {
-  const actual: any = await importOriginal();
-  return {
-    ...actual,
-    getSupabaseClient: vi.fn(() => mockClient),
-    isSupabaseConfigured: vi.fn(() => true),
-  };
-});
+// Supabase has been removed in favor of local database in lib/db/localData.ts
+vi.mock('../lib/supabase', () => ({
+  getSupabaseClient: vi.fn(() => null),
+  isSupabaseConfigured: vi.fn(() => false),
+  testSupabaseConnection: vi.fn(async () => ({
+    success: true,
+    message: 'Local database active.',
+  })),
+}));

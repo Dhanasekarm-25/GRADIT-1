@@ -193,6 +193,7 @@ export class EntityExtractor {
     'xlsx',
     'word',
     'docx',
+    'as',
   ]);
 
   /**
@@ -338,7 +339,7 @@ export class EntityExtractor {
     const deptMatch = text.match(REGEX_PATTERNS.DEPARTMENT);
     if (deptMatch) {
       const rawDept = deptMatch[0].toUpperCase();
-      entities.department = DEPARTMENT_MAP[rawDept] || rawDept;
+      entities.department = rawDept;
     }
 
     // 4. Threshold & Filter
@@ -401,12 +402,14 @@ export class EntityExtractor {
     }
 
     // 10. Student Candidate Name (Fallback when not a student ID)
+    const candidateName = this.extractStudentNameCandidate(text);
     const isAggregateQuery =
-      /\b(?:who\s+has\s+pending|pending\s+fees?|unpaid\s+fees?|overall\s+absentees?|absentees?|who\s+is\s+absent|students\s+below|defaulters?)\b/i.test(text) ||
+      /\b(?:who\s+has\s+pending|overall\s+absentees?|who\s+is\s+absent|students\s+below|defaulters?)\b/i.test(text) ||
+      (!candidateName && /\b(?:pending\s+fees?|unpaid\s+fees?|absentees?)\b/i.test(text)) ||
       ((entities.department || entities.classId) && /\b(?:attendance|fees?|students?|absentees?|below|above)\b/i.test(text) && !/\b(?:of|for)\s+[a-z]+/i.test(text.replace(REGEX_PATTERNS.DEPARTMENT, '').replace(REGEX_PATTERNS.CLASS_ID, '')));
 
-    if (!entities.studentId && !isAggregateQuery) {
-      entities.studentName = this.extractStudentNameCandidate(text);
+    if (!entities.studentId && !isAggregateQuery && candidateName) {
+      entities.studentName = candidateName;
     }
 
     return entities;

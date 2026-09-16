@@ -35,3 +35,7 @@ next-env.d.ts
 # OS Files
 .DS_Store
 Thumbs.db
+
+# Local temporary binaries and scratch files
+.bin/
+Playwright_MCP_Guide.pdf

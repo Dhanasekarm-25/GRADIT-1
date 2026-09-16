@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/npx",
+      "args": ["@playwright/mcp@latest"],
+      "env": {
+        "PATH": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+      }
+    }
+  }
+}
